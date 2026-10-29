@@ -25,7 +25,7 @@
 
 ## 更换上游列表
 
-默认来源是 `Hidashimora/free-vpn-anti-rkn` 的 `configs/1.1.txt`。如需换成项目中的其他 `.txt` 列表，在 `.github/workflows/build-subscription.yml` 的 `SOURCE_URL` 一行替换成对应的 `raw.githubusercontent.com` 地址。
+默认合并 `Hidashimora/free-vpn-anti-rkn` 中被上游页面推荐的 1、6、22–34 号短列表。上游配置可能过期或无法从你的网络连接；列表合并只能增加来源覆盖，不能保证节点在线。需要调整时，编辑 `.github/workflows/build-subscription.yml` 的 `SOURCE_URL` 列表。
 
 ## 注意
 

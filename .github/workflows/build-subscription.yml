@@ -27,9 +27,9 @@ jobs:
           docker run -d --name subconverter -p 127.0.0.1:25500:25500 ghcr.io/jungley8/subconverter-ng:latest
           sleep 5
 
-      - name: Convert upstream public node list to Mihomo YAML
+      - name: Convert recommended upstream public node lists to Mihomo YAML
         env:
-          SOURCE_URL: https://raw.githubusercontent.com/Hidashimora/free-vpn-anti-rkn/main/configs/1.1.txt
+          SOURCE_URL: "https://raw.githubusercontent.com/Hidashimora/free-vpn-anti-rkn/main/configs/1.1.txt|https://raw.githubusercontent.com/Hidashimora/free-vpn-anti-rkn/main/configs/6.1.txt|https://raw.githubusercontent.com/Hidashimora/free-vpn-anti-rkn/main/configs/22.1.txt|https://raw.githubusercontent.com/Hidashimora/free-vpn-anti-rkn/main/configs/23.1.txt|https://raw.githubusercontent.com/Hidashimora/free-vpn-anti-rkn/main/configs/24.1.txt|https://raw.githubusercontent.com/Hidashimora/free-vpn-anti-rkn/main/configs/25.1.txt|https://raw.githubusercontent.com/Hidashimora/free-vpn-anti-rkn/main/configs/26.1.txt|https://raw.githubusercontent.com/Hidashimora/free-vpn-anti-rkn/main/configs/27.txt|https://raw.githubusercontent.com/Hidashimora/free-vpn-anti-rkn/main/configs/28.1.txt|https://raw.githubusercontent.com/Hidashimora/free-vpn-anti-rkn/main/configs/29.txt|https://raw.githubusercontent.com/Hidashimora/free-vpn-anti-rkn/main/configs/30.txt|https://raw.githubusercontent.com/Hidashimora/free-vpn-anti-rkn/main/configs/31.txt|https://raw.githubusercontent.com/Hidashimora/free-vpn-anti-rkn/main/configs/32.1.txt|https://raw.githubusercontent.com/Hidashimora/free-vpn-anti-rkn/main/configs/33.1.txt|https://raw.githubusercontent.com/Hidashimora/free-vpn-anti-rkn/main/configs/34.txt"
         run: |
           for i in $(seq 1 15); do
             if curl --fail --silent --show-error --get \
