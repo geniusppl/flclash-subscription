@@ -45,6 +45,46 @@ jobs:
           test -s flclash.yaml
           grep -q '^proxies:' flclash.yaml
 
+      - name: Add selectable proxy group and default route
+        run: |
+          python3 -m pip install --quiet PyYAML
+          python3 - <<'PY'
+          import yaml
+
+          path = "flclash.yaml"
+          with open(path, encoding="utf-8") as f:
+              config = yaml.safe_load(f) or {}
+          proxies = config.get("proxies") or []
+          if not proxies:
+              raise SystemExit("Converted configuration contains no proxies")
+
+          # Mihomo proxy-group members must have unique names.
+          seen = set()
+          names = []
+          for index, proxy in enumerate(proxies, start=1):
+              base = str(proxy.get("name") or f"node-{index}")
+              name = base
+              suffix = 2
+              while name in seen:
+                  name = f"{base} ({suffix})"
+                  suffix += 1
+              proxy["name"] = name
+              seen.add(name)
+              names.append(name)
+
+          config["proxy-groups"] = [{
+              "name": "PROXY",
+              "type": "select",
+              "proxies": names + ["DIRECT"],
+          }]
+          config["rules"] = ["MATCH,PROXY"]
+          with open(path, "w", encoding="utf-8") as f:
+              yaml.safe_dump(config, f, allow_unicode=True, sort_keys=False)
+          print(f"Added PROXY selector with {len(names)} nodes")
+          PY
+          grep -q '^proxy-groups:' flclash.yaml
+          grep -q '^rules:' flclash.yaml
+
       - name: Publish updated configuration to this repository
         run: |
           git config user.name "github-actions[bot]"
