@@ -1,0 +1,58 @@
+name: Build FlClash subscription
+
+on:
+  workflow_dispatch:
+  schedule:
+    # GitHub Actions scheduled workflows have a 5-minute minimum; use 15 minutes.
+    - cron: '*/15 * * * *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-flclash-subscription
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Start local subscription converter
+        run: |
+          docker pull ghcr.io/jungley8/subconverter-ng:latest
+          docker run -d --name subconverter -p 127.0.0.1:25500:25500 ghcr.io/jungley8/subconverter-ng:latest
+          sleep 5
+
+      - name: Convert upstream public node list to Mihomo YAML
+        env:
+          SOURCE_URL: https://raw.githubusercontent.com/Hidashimora/free-vpn-anti-rkn/main/configs/1.1.txt
+        run: |
+          for i in $(seq 1 15); do
+            if curl --fail --silent --show-error --get \
+              --data-urlencode 'target=clash' \
+              --data-urlencode "url=${SOURCE_URL}" \
+              http://127.0.0.1:25500/sub \
+              --output flclash.yaml; then
+              break
+            fi
+            echo "Converter not ready; retry ${i}/15"
+            sleep 2
+          done
+          test -s flclash.yaml
+          grep -q '^proxies:' flclash.yaml
+
+      - name: Publish updated configuration to this repository
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add flclash.yaml
+          if git diff --cached --quiet; then
+            echo "Configuration unchanged"
+          else
+            git commit -m "chore: update FlClash subscription"
+            git push
+          fi
