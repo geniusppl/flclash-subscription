@@ -55,6 +55,16 @@ jobs:
           with open(path, encoding="utf-8") as f:
               config = yaml.safe_load(f) or {}
           proxies = config.get("proxies") or []
+          original_count = len(proxies)
+          proxies = [
+              proxy for proxy in proxies
+              if not ("reality-opts" in proxy and (
+                  not isinstance(proxy.get("reality-opts"), dict)
+                  or not proxy["reality-opts"].get("public-key")
+              ))
+          ]
+          config["proxies"] = proxies
+          print(f"Removed {original_count - len(proxies)} Reality nodes missing public-key")
           if not proxies:
               raise SystemExit("Converted configuration contains no proxies")
 
